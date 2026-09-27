@@ -1,0 +1,9 @@
+node_modules/
+.DS_Store
+*.log
+public/bundle.js
+public/bundle.css
+public/pdf.worker.min.mjs
+.env
+.env.local
+.vercel

@@ -1,0 +1,26 @@
+{
+  "name": "Perfect Flow",
+  "short_name": "Flow",
+  "description": "Your Song. Your Flow. — Worship bands, live performers, solo musicians, practice groups",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#0E1220",
+  "background_color": "#0E1220",
+  "categories": ["music", "productivity"],
+  "icons": [
+    {
+      "src": "/Square%20logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/Square%20logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

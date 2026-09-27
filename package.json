@@ -1,0 +1,30 @@
+{
+  "name": "perfect-flow",
+  "version": "0.1.0",
+  "description": "Your Song. Your Flow.",
+  "main": "index.js",
+  "scripts": {
+    "build": "node build.js",
+    "dev": "npm run build && http-server public -p 3000 -o index.html",
+    "watch": "node build.js --watch",
+    "migrate": "node scripts/run-sql.js"
+  },
+  "keywords": [
+    "worship",
+    "music",
+    "performance"
+  ],
+  "author": "Perfect Flow",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.117.2",
+    "dotenv": "^18.0.4",
+    "lucide-react": "^1.48.0",
+    "pdfjs-dist": "^6.3.289",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}

@@ -228,6 +228,24 @@ button, input, select, textarea {
   background: rgba(0, 209, 255, 0.08);
 }
 
+.btn-icon.flash {
+  animation: btn-flash 1s ease-in-out infinite;
+}
+
+@keyframes btn-flash {
+  0%, 100% {
+    color: var(--text-muted);
+    border-color: var(--border);
+    background: transparent;
+  }
+  50% {
+    color: var(--cyan);
+    border-color: rgba(0, 209, 255, 0.6);
+    background: var(--accent-soft);
+    box-shadow: 0 0 12px rgba(0, 209, 255, 0.5);
+  }
+}
+
 .btn-icon.btn-success:hover:not(:disabled) {
   color: var(--success);
   border-color: rgba(52, 211, 153, 0.4);
@@ -727,6 +745,11 @@ button, input, select, textarea {
   color: var(--text-muted);
 }
 
+.performance-title {
+  flex: 1;
+  min-width: 0;
+}
+
 .performance-title h1 {
   font-size: var(--fs-lg);
   font-weight: 700;
@@ -796,6 +819,38 @@ button, input, select, textarea {
 .control-group input[type="range"] {
   width: 110px;
   accent-color: var(--cyan);
+}
+
+.control-slider {
+  flex: 1;
+  min-width: 120px;
+}
+
+.control-slider input[type="range"] {
+  width: 100%;
+  flex: 1;
+}
+
+.btn-flat,
+.btn-sharp {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: border-color 0.15s var(--ease), color 0.15s var(--ease);
+}
+
+.btn-flat:hover,
+.btn-sharp:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
 }
 
 .control-group select {
@@ -943,15 +998,31 @@ button, input, select, textarea {
   gap: 2px;
 }
 
-.perf-word.cue-drum {
-  color: var(--success);
+/* Always reserve the top row's height so words without a chord/cue still
+   keep their lyric aligned with neighboring words that do have one. */
+.perf-word-top {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 1.1em;
 }
 
-.perf-word.cue-accent,
-.perf-word.cue-pause,
-.perf-word.cue-stop,
-.perf-word.cue-break {
-  color: var(--purple);
+.cue-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.cue-dot.cue-drum {
+  background: var(--success);
+}
+
+.cue-dot.cue-accent,
+.cue-dot.cue-pause,
+.cue-dot.cue-stop,
+.cue-dot.cue-break {
+  background: var(--purple);
 }
 
 .chord {

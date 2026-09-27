@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   ChevronLeft, ChevronRight, ArrowLeft, Play, Pause,
-  Minus, Plus, Volume2, VolumeX, Type,
+  Volume2, VolumeX, Type, Gauge,
 } from 'lucide-react';
 import { transposeChord } from '../utils/chordUtils';
 
@@ -12,6 +12,7 @@ export default function Performance({ lineUp, currentIndex, onNextSong, onPrevSo
   const [isPlaying, setIsPlaying] = useState(false);
   const [metronomeOn, setMetronomeOn] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [atEnd, setAtEnd] = useState(false);
   const [activeSectionId, setActiveSectionId] = useState(null);
   const [toast, setToast] = useState('');
 
@@ -40,6 +41,8 @@ export default function Performance({ lineUp, currentIndex, onNextSong, onPrevSo
   useEffect(() => {
     setTranspose(0);
     setIsPlaying(false);
+    setScrollProgress(0);
+    setAtEnd(false);
     setActiveSectionId(currentSong?.sections?.[0]?.id ?? null);
     if (containerRef.current) containerRef.current.scrollTop = 0;
   }, [currentSong?.id]);
@@ -59,8 +62,11 @@ export default function Performance({ lineUp, currentIndex, onNextSong, onPrevSo
     const handleScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = el;
       const max = scrollHeight - clientHeight;
-      setScrollProgress(max > 0 ? Math.min(100, (scrollTop / max) * 100) : 0);
+      const progress = max > 0 ? Math.min(100, (scrollTop / max) * 100) : 100;
+      setScrollProgress(progress);
+      setAtEnd(progress >= 98);
     };
+    handleScroll();
     el.addEventListener('scroll', handleScroll);
     return () => el.removeEventListener('scroll', handleScroll);
   }, [currentSong?.id]);
@@ -116,6 +122,8 @@ export default function Performance({ lineUp, currentIndex, onNextSong, onPrevSo
 
   if (!currentSong) return null;
 
+  const hasNext = currentIndex < lineUp.length - 1;
+
   return (
     <div className="performance-container">
       {toast && <div className="toast">{toast}</div>}
@@ -130,6 +138,9 @@ export default function Performance({ lineUp, currentIndex, onNextSong, onPrevSo
             <span className="transposed-key">{transposeChord(currentSong.key, transpose)}</span>
           ) : currentSong.key} • {currentSong.bpm} BPM</p>
         </div>
+        <button className="btn-play" onClick={togglePlay} title={isPlaying ? 'Pause auto-scroll' : 'Play auto-scroll'}>
+          {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" />}
+        </button>
       </div>
 
       {currentSong.sections?.length > 1 && (
@@ -165,11 +176,11 @@ export default function Performance({ lineUp, currentIndex, onNextSong, onPrevSo
                 <div key={line.id} className="perf-line">
                   <div className="perf-words">
                     {line.words?.map(word => (
-                      <div
-                        key={word.id}
-                        className={`perf-word ${word.cue ? `cue-${word.cue}` : ''}`}
-                      >
-                        {word.chord && <div className="chord">{transposeChord(word.chord, transpose)}</div>}
+                      <div key={word.id} className="perf-word">
+                        <div className="perf-word-top">
+                          {word.cue && <span className={`cue-dot cue-${word.cue}`} />}
+                          {word.chord && <span className="chord">{transposeChord(word.chord, transpose)}</span>}
+                        </div>
                         <div className="lyric">{word.text}</div>
                       </div>
                     ))}
@@ -182,35 +193,29 @@ export default function Performance({ lineUp, currentIndex, onNextSong, onPrevSo
       </div>
 
       <div className="performance-controls">
-        <button className="btn-play" onClick={togglePlay} title={isPlaying ? 'Pause auto-scroll' : 'Play auto-scroll'}>
-          {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
-        </button>
-
-        <div className="control-group">
-          <label>Speed</label>
-          <div className="control-buttons">
-            <button onClick={() => setScrollSpeed(s => Math.max(1, s - 1))}>−</button>
-            <span>{scrollSpeed}</span>
-            <button onClick={() => setScrollSpeed(s => Math.min(6, s + 1))}>+</button>
-          </div>
+        <div className="control-group control-slider">
+          <label><Gauge size={13} /></label>
+          <input
+            type="range" min="1" max="8" step="0.5" value={scrollSpeed}
+            onChange={(e) => setScrollSpeed(parseFloat(e.target.value))}
+          />
         </div>
 
-        <div className="control-group">
-          <label>Transpose</label>
-          <div className="control-buttons">
-            <button onClick={() => setTranspose(t => t - 1)}>−</button>
-            <span>{transpose > 0 ? '+' : ''}{transpose}</span>
-            <button onClick={() => setTranspose(t => t + 1)}>+</button>
-          </div>
+        <div className="control-group control-slider">
+          <button className="btn-flat" onClick={() => setTranspose(t => Math.max(-11, t - 1))}>♭</button>
+          <input
+            type="range" min="-11" max="11" step="1" value={transpose}
+            onChange={(e) => setTranspose(parseInt(e.target.value))}
+          />
+          <button className="btn-sharp" onClick={() => setTranspose(t => Math.min(11, t + 1))}>♯</button>
         </div>
 
-        <div className="control-group">
+        <div className="control-group control-slider">
           <label><Type size={13} /></label>
-          <div className="control-buttons">
-            <button onClick={() => setFontSize(f => Math.max(12, f - 2))}>−</button>
-            <span>{fontSize}</span>
-            <button onClick={() => setFontSize(f => Math.min(36, f + 2))}>+</button>
-          </div>
+          <input
+            type="range" min="12" max="36" step="1" value={fontSize}
+            onChange={(e) => setFontSize(parseInt(e.target.value))}
+          />
         </div>
 
         <button
@@ -228,7 +233,11 @@ export default function Performance({ lineUp, currentIndex, onNextSong, onPrevSo
         </button>
         <div className="song-counter">{currentIndex + 1} / {lineUp.length}</div>
         <div className="next-song-preview">{nextSong ? `Next: ${nextSong.title}` : 'Last song'}</div>
-        <button className="btn-icon" onClick={onNextSong} disabled={currentIndex === lineUp.length - 1}>
+        <button
+          className={`btn-icon ${atEnd && hasNext ? 'flash' : ''}`}
+          onClick={onNextSong}
+          disabled={!hasNext}
+        >
           <ChevronRight size={22} />
         </button>
       </div>

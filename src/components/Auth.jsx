@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Mail, CheckCircle2, Lock } from 'lucide-react';
+import { Mail, CheckCircle2, Lock, Clock } from 'lucide-react';
+import { retryOnRateLimit } from '../utils/retryOnRateLimit';
 
 // Flip to true once the Google provider is configured in Supabase
 // (Dashboard → Authentication → Providers → Google) and OAuth
@@ -23,11 +24,23 @@ export function SignIn({ onSignInWithPassword, onSignUpWithPassword, onSignInWit
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [pendingRetry, setPendingRetry] = useState(0); // 0 = not queued, else retry attempt #
 
   const handleGoogle = async () => {
     setError('');
     const { error } = await onSignInWithGoogle();
     if (error) setError(error.message);
+  };
+
+  const runWithQueue = async (fn) => {
+    setLoading(true);
+    setPendingRetry(0);
+    const { error } = await retryOnRateLimit(fn, {
+      onRetry: (attempt) => setPendingRetry(attempt),
+    });
+    setLoading(false);
+    setPendingRetry(0);
+    return { error };
   };
 
   const handleSubmit = async (e) => {
@@ -36,18 +49,14 @@ export function SignIn({ onSignInWithPassword, onSignUpWithPassword, onSignInWit
     setError('');
 
     if (mode === 'magic') {
-      setLoading(true);
-      const { error } = await onSignInWithMagicLink(email.trim());
-      setLoading(false);
+      const { error } = await runWithQueue(() => onSignInWithMagicLink(email.trim()));
       if (error) setError(error.message);
       else setSent(true);
       return;
     }
 
     if (mode === 'reset') {
-      setLoading(true);
-      const { error } = await onResetPassword(email.trim());
-      setLoading(false);
+      const { error } = await runWithQueue(() => onResetPassword(email.trim()));
       if (error) setError(error.message);
       else setSent(true);
       return;
@@ -56,9 +65,7 @@ export function SignIn({ onSignInWithPassword, onSignUpWithPassword, onSignInWit
     if (mode === 'signup') {
       if (password.length < 6) { setError('Password must be at least 6 characters.'); return; }
       if (password !== confirmPassword) { setError('Passwords do not match.'); return; }
-      setLoading(true);
-      const { error } = await onSignUpWithPassword(email.trim(), password);
-      setLoading(false);
+      const { error } = await runWithQueue(() => onSignUpWithPassword(email.trim(), password));
       if (error) setError(error.message);
       else setSent(true);
       return;
@@ -135,8 +142,17 @@ export function SignIn({ onSignInWithPassword, onSignUpWithPassword, onSignInWit
 
             {error && <p className="auth-error">{error}</p>}
 
+            {pendingRetry > 0 && (
+              <p className="auth-pending">
+                <Clock size={13} /> Queued — the email service is briefly at capacity. Retrying automatically
+                (attempt {pendingRetry})… keep this tab open.
+              </p>
+            )}
+
             <button className="btn-primary btn-block" type="submit" disabled={loading}>
-              {loading
+              {pendingRetry > 0
+                ? 'Waiting to send…'
+                : loading
                 ? 'Please wait…'
                 : mode === 'signup' ? 'Create Account'
                 : mode === 'magic' ? 'Send Sign-In Link'

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Play, ChevronLeft, GripVertical, X, Share2 } from 'lucide-react';
+import { Plus, Trash2, Play, ChevronLeft, GripVertical, X, Share2, Edit2 } from 'lucide-react';
 
 export default function Setlists({ setlists, songs, onCreate, onDelete, onRename, onAddSong, onRemoveSong, onReorder, onStart }) {
   const [selectedId, setSelectedId] = useState(null);
@@ -153,19 +153,31 @@ export default function Setlists({ setlists, songs, onCreate, onDelete, onRename
       ) : (
         <div className="song-list">
           {setlists.map(sl => (
-            <div key={sl.id} className="setlist-card" onClick={() => setSelectedId(sl.id)}>
-              <div className="song-info">
+            <div key={sl.id} className="setlist-card">
+              <div className="song-info" onClick={() => setSelectedId(sl.id)}>
                 <h3>{sl.name}</h3>
                 <p>{sl.songIds.length} song{sl.songIds.length === 1 ? '' : 's'}</p>
               </div>
-              <button
-                className="btn-icon active"
-                onClick={(e) => { e.stopPropagation(); onStart(sl.id); }}
-                title="Start"
-                disabled={sl.songIds.length === 0}
-              >
-                <Play size={16} fill="currentColor" />
-              </button>
+              <div className="song-actions">
+                <button className="btn-icon" onClick={() => setSelectedId(sl.id)} title="Edit">
+                  <Edit2 size={16} />
+                </button>
+                <button
+                  className="btn-icon active"
+                  onClick={() => onStart(sl.id)}
+                  title="Start"
+                  disabled={sl.songIds.length === 0}
+                >
+                  <Play size={16} fill="currentColor" />
+                </button>
+                <button
+                  className="btn-icon btn-danger"
+                  onClick={() => onDelete(sl.id)}
+                  title="Delete"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
             </div>
           ))}
         </div>

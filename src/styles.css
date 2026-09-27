@@ -1282,8 +1282,13 @@ button, input, select, textarea {
   background: var(--surface-1);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
-  cursor: pointer;
   transition: border-color 0.15s var(--ease), background 0.15s var(--ease);
+}
+
+.setlist-card .song-info {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
 }
 
 .setlist-card:hover {
@@ -1797,6 +1802,26 @@ button, input, select, textarea {
   color: var(--danger);
   font-size: var(--fs-xs);
   text-align: left;
+}
+
+.auth-pending {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: var(--cyan);
+  font-size: 11px;
+  text-align: left;
+  line-height: 1.4;
+  background: var(--accent-soft);
+  border: 1px solid rgba(0, 209, 255, 0.25);
+  border-radius: var(--r-sm);
+  padding: var(--sp-2) var(--sp-3);
+  margin-bottom: var(--sp-2);
+}
+
+.auth-pending svg {
+  flex-shrink: 0;
+  margin-top: 1px;
 }
 
 .auth-sent {

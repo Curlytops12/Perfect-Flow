@@ -405,7 +405,6 @@ export default function App() {
             setlists={setlists}
             onSignOut={handleSignOut}
             onCopySong={handleCopySong}
-            onOpenPresentations={() => setView('presentations')}
           />
         )}
         {view === 'presentations' && (

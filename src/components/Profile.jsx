@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Music2, LogOut, Inbox, Check, X, Download, Upload, Trash2, MonitorPlay } from 'lucide-react';
+import { Music2, LogOut, Inbox, Check, X, Download, Upload, Trash2 } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
 
-export default function Profile({ profile, songs, setlists, onSignOut, onCopySong, onOpenPresentations }) {
+export default function Profile({ profile, songs, setlists, onSignOut, onCopySong }) {
   const [shares, setShares] = useState([]);
   const [loadingShares, setLoadingShares] = useState(true);
   const [message, setMessage] = useState('');
@@ -112,13 +112,6 @@ export default function Profile({ profile, songs, setlists, onSignOut, onCopySon
         <div className="profile-stat"><span>{songs.length}</span>Songs</div>
         <div className="profile-stat"><span>{setlists.length}</span>Setlists</div>
         <div className="profile-stat"><span>{songs.filter(s => s.favorite).length}</span>Favorites</div>
-      </div>
-
-      <div className="section-group">
-        <h3>Stage Tools</h3>
-        <button className="btn-secondary btn-block" onClick={onOpenPresentations}>
-          <MonitorPlay size={16} /> Presentations (OBS Link)
-        </button>
       </div>
 
       <div className="section-group">

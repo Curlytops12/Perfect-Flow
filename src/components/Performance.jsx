@@ -4,6 +4,7 @@ import {
   Volume2, VolumeX, Type, Gauge,
 } from 'lucide-react';
 import { transposeChord } from '../utils/chordUtils';
+import { KNOWN_CUES } from '../utils/constants';
 
 export default function Performance({ lineUp, currentIndex, onNextSong, onPrevSong, onExit }) {
   const [transpose, setTranspose] = useState(0);
@@ -178,7 +179,11 @@ export default function Performance({ lineUp, currentIndex, onNextSong, onPrevSo
                     {line.words?.map(word => (
                       <div key={word.id} className="perf-word">
                         <div className="perf-word-top">
-                          {word.cue && <span className={`cue-dot cue-${word.cue}`} />}
+                          {word.cue && (
+                            KNOWN_CUES.includes(word.cue)
+                              ? <span className={`cue-dot cue-${word.cue}`} />
+                              : <span className="cue-custom">{word.cue}</span>
+                          )}
                           {word.chord && <span className="chord">{transposeChord(word.chord, transpose)}</span>}
                         </div>
                         <div className="lyric">{word.text}</div>

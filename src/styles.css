@@ -703,6 +703,22 @@ button, input, select, textarea {
   border-color: var(--cyan);
 }
 
+.modal-text-input {
+  width: 100%;
+  padding: var(--sp-3);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font-size: var(--fs-base);
+  font-family: var(--font-main);
+}
+
+.modal-text-input:focus {
+  outline: none;
+  border-color: var(--cyan);
+}
+
 .modal-actions {
   display: flex;
   gap: var(--sp-3);
@@ -1023,6 +1039,105 @@ button, input, select, textarea {
 .cue-dot.cue-stop,
 .cue-dot.cue-break {
   background: var(--purple);
+}
+
+.cue-custom {
+  font-size: 0.6em;
+  font-weight: 700;
+  color: var(--purple);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+/* ---------- Ratings & reviews ---------- */
+.review-section {
+  margin-top: var(--sp-6);
+}
+
+.review-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  margin-bottom: var(--sp-3);
+}
+
+.review-stars {
+  display: flex;
+  gap: 2px;
+  color: #FFC94D;
+}
+
+.review-stars-input {
+  gap: 4px;
+  margin-bottom: var(--sp-2);
+}
+
+.star-btn {
+  background: transparent;
+  border: none;
+  color: #FFC94D;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.review-form {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-4);
+}
+
+.review-form textarea {
+  width: 100%;
+  padding: var(--sp-2);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-family: var(--font-main);
+  resize: vertical;
+  margin-bottom: var(--sp-3);
+}
+
+.review-form textarea:focus {
+  outline: none;
+  border-color: var(--cyan);
+}
+
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.review-item {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: var(--sp-3);
+}
+
+.review-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.review-author {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.review-item p {
+  font-size: var(--fs-sm);
+  color: var(--text);
 }
 
 .chord {
@@ -1430,8 +1545,34 @@ button, input, select, textarea {
 }
 
 .profile-name {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   font-size: var(--fs-lg);
   font-weight: 700;
+}
+
+.profile-name-edit {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.profile-name-edit input {
+  flex: 1;
+  min-width: 0;
+  padding: 4px var(--sp-2);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font-size: var(--fs-base);
+  font-weight: 700;
+}
+
+.profile-name-edit input:focus {
+  outline: none;
+  border-color: var(--cyan);
 }
 
 .profile-tagline {
@@ -2011,6 +2152,63 @@ button, input, select, textarea {
   0% { opacity: 1; }
   70% { opacity: 1; }
   100% { opacity: 0; }
+}
+
+/* ---------- Donation peel + popup ---------- */
+.donation-peel {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 60px;
+  height: 60px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  z-index: 400;
+  padding: 0;
+}
+
+.donation-peel img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  box-shadow: -6px -6px 16px rgba(0, 0, 0, 0.45);
+  transition: transform 0.2s var(--ease);
+}
+
+.donation-peel:hover img {
+  transform: scale(1.1);
+}
+
+.donation-modal-content {
+  text-align: center;
+  max-width: 340px;
+  position: relative;
+}
+
+.donation-close {
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
+}
+
+.donation-qr {
+  width: 100%;
+  max-width: 220px;
+  border-radius: var(--r-md);
+  margin: var(--sp-3) auto;
+  display: block;
+  border: 1px solid var(--border);
+}
+
+.donation-message {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: var(--sp-4);
+  text-align: left;
 }
 
 /* ---------- Toast ---------- */

@@ -89,6 +89,17 @@ export function useAuth() {
     return { error };
   };
 
+  const updateProfile = async (updates) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', session.user.id)
+      .select()
+      .single();
+    if (!error) setProfile(data);
+    return { data, error };
+  };
+
   const signOut = () => supabase.auth.signOut();
 
   const createProfile = async (username, displayName) => {
@@ -112,6 +123,7 @@ export function useAuth() {
     signInWithGoogle,
     resetPasswordForEmail,
     updatePassword,
+    updateProfile,
     signOut,
     createProfile,
   };

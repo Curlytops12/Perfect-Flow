@@ -4,12 +4,12 @@ import Setlists from './components/Setlists';
 import Practice from './components/Practice';
 import Live from './components/Live';
 import Profile from './components/Profile';
-import Presentations from './components/Presentations';
 import Editor from './components/Editor';
 import SongView from './components/SongView';
 import Performance from './components/Performance';
 import { SignIn, CreateProfile, ResetPassword, SupabaseNotConfigured } from './components/Auth';
 import Guest from './components/Guest';
+import DonationPrompt from './components/DonationPrompt';
 import { useAuth } from './hooks/useAuth';
 import { supabase, supabaseReady } from './utils/supabaseClient';
 import { Music, ListMusic, Headphones, Radio, User } from 'lucide-react';
@@ -34,7 +34,7 @@ export default function App() {
   const {
     session, profile, loading: authLoading, recoveryMode,
     signInWithEmail, signUpWithPassword, signInWithPassword, signInWithGoogle,
-    resetPasswordForEmail, updatePassword,
+    resetPasswordForEmail, updatePassword, updateProfile,
     signOut, createProfile,
   } = useAuth();
   const [showSignIn, setShowSignIn] = useState(false);
@@ -405,10 +405,8 @@ export default function App() {
             setlists={setlists}
             onSignOut={handleSignOut}
             onCopySong={handleCopySong}
+            onUpdateProfile={updateProfile}
           />
-        )}
-        {view === 'presentations' && (
-          <Presentations profile={profile} onBack={() => setView('profile')} />
         )}
         {view === 'editor' && currentSong && (
           <Editor
@@ -420,6 +418,7 @@ export default function App() {
         {view === 'view-song' && currentSong && (
           <SongView
             song={currentSong}
+            profile={profile}
             onEdit={() => setView('editor')}
             onBack={() => setView('songs')}
           />
@@ -448,6 +447,8 @@ export default function App() {
           <span className="nav-label">Profile</span>
         </button>
       </nav>
+
+      <DonationPrompt />
     </div>
   );
 }

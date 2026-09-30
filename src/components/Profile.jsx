@@ -1,12 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Music2, LogOut, Inbox, Check, X, Download, Upload, Trash2 } from 'lucide-react';
+import { Music2, LogOut, Inbox, Check, X, Download, Upload, Trash2, Edit2, Bug } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
 
-export default function Profile({ profile, songs, setlists, onSignOut, onCopySong }) {
+export default function Profile({ profile, songs, setlists, onSignOut, onCopySong, onUpdateProfile }) {
   const [shares, setShares] = useState([]);
   const [loadingShares, setLoadingShares] = useState(true);
   const [message, setMessage] = useState('');
   const fileRef = React.useRef(null);
+
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState(profile.display_name || '');
+  const [savingName, setSavingName] = useState(false);
+
+  const [showBugReport, setShowBugReport] = useState(false);
+  const [bugText, setBugText] = useState('');
+  const [submittingBug, setSubmittingBug] = useState(false);
 
   const flash = (msg) => {
     setMessage(msg);
@@ -80,6 +88,28 @@ export default function Profile({ profile, songs, setlists, onSignOut, onCopySon
     e.target.value = '';
   };
 
+  const handleSaveName = async () => {
+    setSavingName(true);
+    const { error } = await onUpdateProfile({ display_name: nameInput.trim() || profile.username });
+    setSavingName(false);
+    if (error) { flash('Could not update name: ' + error.message); return; }
+    setEditingName(false);
+  };
+
+  const handleSubmitBug = async () => {
+    if (!bugText.trim()) return;
+    setSubmittingBug(true);
+    const { error } = await supabase.from('bug_reports').insert({
+      reporter_id: profile.id,
+      description: bugText.trim(),
+    });
+    setSubmittingBug(false);
+    if (error) { flash('Could not submit: ' + error.message); return; }
+    setBugText('');
+    setShowBugReport(false);
+    flash('Thanks — bug report sent.');
+  };
+
   const handleResetLocal = () => {
     if (window.confirm('This clears setlists and favorites stored on this device. Your songs stay safe in the cloud. Continue?')) {
       localStorage.removeItem('perfectflow_setlists');
@@ -99,8 +129,29 @@ export default function Profile({ profile, songs, setlists, onSignOut, onCopySon
         <div className="profile-brand">
           <Music2 size={28} />
         </div>
-        <div style={{ flex: 1 }}>
-          <div className="profile-name">{profile.display_name || profile.username}</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {editingName ? (
+            <div className="profile-name-edit">
+              <input
+                type="text" value={nameInput} autoFocus placeholder="Display name"
+                onChange={(e) => setNameInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleSaveName(); }}
+              />
+              <button className="btn-icon" onClick={handleSaveName} disabled={savingName} title="Save">
+                <Check size={14} />
+              </button>
+              <button className="btn-icon" onClick={() => { setEditingName(false); setNameInput(profile.display_name || ''); }} title="Cancel">
+                <X size={14} />
+              </button>
+            </div>
+          ) : (
+            <div className="profile-name">
+              {profile.display_name || profile.username}
+              <button className="btn-icon" onClick={() => setEditingName(true)} title="Edit name">
+                <Edit2 size={13} />
+              </button>
+            </div>
+          )}
           <div className="profile-tagline">@{profile.username}</div>
         </div>
         <button className="btn-icon" onClick={onSignOut} title="Sign out">
@@ -156,7 +207,33 @@ export default function Profile({ profile, songs, setlists, onSignOut, onCopySon
         {message && <p className="section-hint">{message}</p>}
       </div>
 
+      <div className="section-group">
+        <h3>Feedback</h3>
+        <button className="btn-secondary btn-block" onClick={() => setShowBugReport(true)}>
+          <Bug size={16} /> Report a Bug
+        </button>
+      </div>
+
       <p className="version-tag">Perfect Flow v0.3 · Cloud-synced songs · Setlists stored on this device</p>
+
+      {showBugReport && (
+        <div className="modal" onClick={() => setShowBugReport(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>Report a Bug</h2>
+            <p className="section-hint">What happened, and what were you doing right before it? The more detail, the faster it gets fixed.</p>
+            <textarea
+              rows="6" value={bugText} autoFocus placeholder="Describe the issue…"
+              onChange={(e) => setBugText(e.target.value)}
+            />
+            <div className="modal-actions">
+              <button className="btn-primary" onClick={handleSubmitBug} disabled={submittingBug || !bugText.trim()}>
+                {submittingBug ? 'Sending…' : 'Send Report'}
+              </button>
+              <button className="btn-secondary" onClick={() => setShowBugReport(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

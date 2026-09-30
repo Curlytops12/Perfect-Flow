@@ -3,7 +3,7 @@ import {
   Save, X, Plus, Trash2, Copy, GripVertical, Undo2, Redo2,
   Scissors, CornerLeftUp, FileText,
 } from 'lucide-react';
-import { SECTION_TYPES, KEYS } from '../utils/constants';
+import { SECTION_TYPES, KEYS, KNOWN_CUES } from '../utils/constants';
 
 const DIATONIC_CHORDS = {
   C: ['C', 'Dm', 'Em', 'F', 'G', 'Am'],
@@ -32,6 +32,8 @@ export default function Editor({ song, onSave, onCancel }) {
   const [typePicker, setTypePicker] = useState(null); // { sectionId, lineIdx }
   const [wordPopup, setWordPopup] = useState(null); // { sectionId, lineIdx, wordId }
   const [dragIndex, setDragIndex] = useState(null);
+  const [customNameRequest, setCustomNameRequest] = useState(null); // { onConfirm }
+  const [customNameInput, setCustomNameInput] = useState('');
 
   const addToHistory = (newState) => {
     const newHistory = history.slice(0, historyIndex + 1);
@@ -65,12 +67,18 @@ export default function Editor({ song, onSave, onCancel }) {
   };
 
   const addSection = (type) => {
-    let customName = null;
     if (type === 'Other') {
-      customName = window.prompt('Name this section:');
-      if (customName === null) return;
+      setCustomNameInput('');
+      setCustomNameRequest({
+        onConfirm: (customName) => {
+          const name = nameForType(edited.sections, type, customName);
+          const sections = [...edited.sections, { id: uid(), name, type, lines: [] }];
+          addToHistory({ ...edited, sections });
+        },
+      });
+      return;
     }
-    const name = nameForType(edited.sections, type, customName);
+    const name = nameForType(edited.sections, type, null);
     const sections = [...edited.sections, { id: uid(), name, type, lines: [] }];
     addToHistory({ ...edited, sections });
   };
@@ -133,12 +141,16 @@ export default function Editor({ song, onSave, onCancel }) {
 
   const handleTypePick = (type) => {
     if (!typePicker) return;
-    let customName = null;
+    const { sectionId, lineIdx } = typePicker;
     if (type === 'Other') {
-      customName = window.prompt('Name this section:');
-      if (customName === null) { setTypePicker(null); return; }
+      setCustomNameInput('');
+      setCustomNameRequest({
+        onConfirm: (customName) => splitSectionAt(sectionId, lineIdx, type, customName),
+      });
+      setTypePicker(null);
+      return;
     }
-    splitSectionAt(typePicker.sectionId, typePicker.lineIdx, type, customName);
+    splitSectionAt(sectionId, lineIdx, type, null);
     setTypePicker(null);
   };
 
@@ -225,6 +237,7 @@ export default function Editor({ song, onSave, onCancel }) {
     const word = line?.words.find(w => w.id === wordPopup.wordId);
     if (word) wordPopupData = word;
   }
+  const isCustomCue = wordPopupData && wordPopupData.cue && !KNOWN_CUES.includes(wordPopupData.cue);
 
   return (
     <div className="view">
@@ -456,6 +469,34 @@ export default function Editor({ song, onSave, onCancel }) {
         </div>
       )}
 
+      {customNameRequest && (
+        <div className="modal" onClick={() => setCustomNameRequest(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>Name this section</h2>
+            <input
+              type="text" className="modal-text-input" value={customNameInput} autoFocus
+              placeholder="e.g. Tag, Reprise, Testimony"
+              onChange={(e) => setCustomNameInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  customNameRequest.onConfirm(customNameInput);
+                  setCustomNameRequest(null);
+                }
+              }}
+            />
+            <div className="modal-actions">
+              <button
+                className="btn-primary"
+                onClick={() => { customNameRequest.onConfirm(customNameInput); setCustomNameRequest(null); }}
+              >
+                Add
+              </button>
+              <button className="btn-secondary" onClick={() => setCustomNameRequest(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {wordPopupData && (
         <div className="modal" onClick={() => setWordPopup(null)}>
           <div className="modal-content word-popup" onClick={(e) => e.stopPropagation()}>
@@ -484,15 +525,31 @@ export default function Editor({ song, onSave, onCancel }) {
             )}
             <label className="word-popup-label">
               Cue
-              <select value={wordPopupData.cue || ''} onChange={(e) => updateWord({ cue: e.target.value })}>
+              <select
+                value={isCustomCue ? '__custom__' : (wordPopupData.cue || '')}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  updateWord({ cue: v === '__custom__' ? 'Custom' : v });
+                }}
+              >
                 <option value="">—</option>
                 <option value="drum">🟢 Drum</option>
                 <option value="accent">🟣 Accent</option>
                 <option value="pause">🟣 Pause</option>
                 <option value="stop">🟣 Stop</option>
                 <option value="break">🟣 Break</option>
+                <option value="__custom__">✏️ Custom…</option>
               </select>
             </label>
+            {isCustomCue && (
+              <label className="word-popup-label">
+                Custom Cue Label
+                <input
+                  type="text" value={wordPopupData.cue} autoFocus placeholder="e.g. Key Change, Shout"
+                  onChange={(e) => updateWord({ cue: e.target.value })}
+                />
+              </label>
+            )}
             <div className="modal-actions">
               <button className="btn-icon btn-danger" onClick={removeWord} title="Remove word">
                 <Trash2 size={16} />

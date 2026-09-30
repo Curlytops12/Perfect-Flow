@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, LogIn, ArrowLeft } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
-import { CATEGORIES } from '../utils/constants';
+import { CATEGORIES, KNOWN_CUES } from '../utils/constants';
 
 const FILTERS = ['All', ...CATEGORIES.filter(c => c !== 'Other')];
 
@@ -73,8 +73,15 @@ export default function Guest({ onSignInClick }) {
                 <div key={line.id} className="perf-line">
                   <div className="perf-words">
                     {line.words?.map(word => (
-                      <div key={word.id} className={`perf-word ${word.cue ? `cue-${word.cue}` : ''}`}>
-                        {word.chord && <div className="chord">{word.chord}</div>}
+                      <div key={word.id} className="perf-word">
+                        <div className="perf-word-top">
+                          {word.cue && (
+                            KNOWN_CUES.includes(word.cue)
+                              ? <span className={`cue-dot cue-${word.cue}`} />
+                              : <span className="cue-custom">{word.cue}</span>
+                          )}
+                          {word.chord && <span className="chord">{word.chord}</span>}
+                        </div>
                         <div className="lyric">{word.text}</div>
                       </div>
                     ))}

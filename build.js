@@ -1,15 +1,7 @@
 require('dotenv').config();
 const esbuild = require('esbuild');
-const fs = require('fs');
-const path = require('path');
 
 const watch = process.argv.includes('--watch');
-
-function copyPdfWorker() {
-  const src = path.join(__dirname, 'node_modules/pdfjs-dist/build/pdf.worker.min.mjs');
-  const dest = path.join(__dirname, 'public/pdf.worker.min.mjs');
-  fs.copyFileSync(src, dest);
-}
 
 const define = {
   'process.env.SUPABASE_URL': JSON.stringify(process.env.SUPABASE_URL || ''),
@@ -27,7 +19,6 @@ const options = {
 };
 
 async function run() {
-  copyPdfWorker();
   if (watch) {
     const ctx = await esbuild.context(options);
     await ctx.watch();

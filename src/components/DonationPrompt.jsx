@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, HeartHandshake } from 'lucide-react';
 
 const STORAGE_KEY = 'perfectflow_donation_last_shown';
 const INTERVAL_MS = 3 * 24 * 60 * 60 * 1000; // every few days per device
@@ -22,8 +22,8 @@ export default function DonationPrompt() {
 
   return (
     <>
-      <button className="donation-peel" onClick={() => setOpen(true)} title="Support Perfect Flow">
-        <img src="/gcash-qr.jpeg" alt="" />
+      <button className="donation-fab" onClick={() => setOpen(true)} title="Support Perfect Flow">
+        <HeartHandshake size={22} />
       </button>
 
       {open && (

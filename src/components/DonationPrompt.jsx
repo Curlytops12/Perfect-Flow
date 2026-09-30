@@ -6,6 +6,7 @@ const INTERVAL_MS = 3 * 24 * 60 * 60 * 1000; // every few days per device
 
 export default function DonationPrompt() {
   const [open, setOpen] = useState(false);
+  const [showBubble, setShowBubble] = useState(false);
 
   useEffect(() => {
     try {
@@ -20,9 +21,27 @@ export default function DonationPrompt() {
     } catch (e) { /* localStorage unavailable — skip silently */ }
   }, []);
 
+  useEffect(() => {
+    const t = setTimeout(() => setShowBubble(true), 2500);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <>
-      <button className="donation-fab" onClick={() => setOpen(true)} title="Support Perfect Flow">
+      {showBubble && !open && (
+        <div className="donation-bubble" onClick={() => { setOpen(true); setShowBubble(false); }}>
+          <button
+            className="donation-bubble-close"
+            onClick={(e) => { e.stopPropagation(); setShowBubble(false); }}
+            title="Dismiss"
+          >
+            <X size={12} />
+          </button>
+          Want to help?
+        </div>
+      )}
+
+      <button className="donation-fab" onClick={() => { setOpen(true); setShowBubble(false); }} title="Support Perfect Flow">
         <HeartHandshake size={22} />
       </button>
 

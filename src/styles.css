@@ -1701,10 +1701,12 @@ button, input, select, textarea {
   align-items: center;
   gap: var(--sp-2);
   margin-bottom: var(--sp-3);
+  flex-wrap: wrap;
 }
 
 .section-title-input {
   flex: 1;
+  min-width: 100px;
   background: transparent;
   border: none;
   border-bottom: 1px solid transparent;

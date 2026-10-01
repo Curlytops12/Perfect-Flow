@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Save, X, Plus, Trash2, Copy, GripVertical, Undo2, Redo2,
-  Scissors, CornerLeftUp, FileText, UnfoldVertical,
+  Scissors, CornerLeftUp, FileText, UnfoldVertical, ChevronUp, ChevronDown,
 } from 'lucide-react';
 import { SECTION_TYPES, KEYS, KNOWN_CUES } from '../utils/constants';
 
@@ -112,6 +112,12 @@ export default function Editor({ song, onSave, onCancel }) {
     const [moved] = sections.splice(fromIdx, 1);
     sections.splice(toIdx, 0, moved);
     addToHistory({ ...edited, sections });
+  };
+
+  const moveSection = (idx, dir) => {
+    const newIdx = idx + dir;
+    if (newIdx < 0 || newIdx >= edited.sections.length) return;
+    reorderSections(idx, newIdx);
   };
 
   const joinWithPrevious = (sectionId) => {
@@ -336,6 +342,15 @@ export default function Editor({ song, onSave, onCancel }) {
                     onChange={(e) => updateSection(section.id, { name: e.target.value })}
                   />
                   <div className="section-item-actions">
+                    <button onClick={() => moveSection(idx, -1)} className="btn-icon" disabled={idx === 0} title="Move up">
+                      <ChevronUp size={14} />
+                    </button>
+                    <button
+                      onClick={() => moveSection(idx, 1)} className="btn-icon"
+                      disabled={idx === edited.sections.length - 1} title="Move down"
+                    >
+                      <ChevronDown size={14} />
+                    </button>
                     <button onClick={() => duplicateSection(section.id)} className="btn-icon" title="Duplicate">
                       <Copy size={14} />
                     </button>
@@ -386,6 +401,21 @@ export default function Editor({ song, onSave, onCancel }) {
                     type="text" value={section.name} className="section-title-input"
                     onChange={(e) => updateSection(section.id, { name: e.target.value })}
                   />
+                  <button
+                    className="btn-icon" onClick={() => moveSection(idx, -1)}
+                    disabled={idx === 0} title="Move section up"
+                  >
+                    <ChevronUp size={16} />
+                  </button>
+                  <button
+                    className="btn-icon" onClick={() => moveSection(idx, 1)}
+                    disabled={idx === edited.sections.length - 1} title="Move section down"
+                  >
+                    <ChevronDown size={16} />
+                  </button>
+                  <button className="btn-icon" onClick={() => duplicateSection(section.id)} title="Duplicate section">
+                    <Copy size={16} />
+                  </button>
                   <button className="btn-icon btn-danger" onClick={() => deleteSection(section.id)} title="Delete section">
                     <Trash2 size={16} />
                   </button>

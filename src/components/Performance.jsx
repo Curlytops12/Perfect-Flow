@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   ChevronLeft, ChevronRight, ArrowLeft, Play, Pause,
-  Volume2, VolumeX, Type, Gauge,
+  Volume2, VolumeX, Type, Gauge, Guitar, Drum,
 } from 'lucide-react';
 import { transposeChord } from '../utils/chordUtils';
 import { KNOWN_CUES } from '../utils/constants';
@@ -12,6 +12,8 @@ export default function Performance({ lineUp, currentIndex, onNextSong, onPrevSo
   const [scrollSpeed, setScrollSpeed] = useState(2);
   const [isPlaying, setIsPlaying] = useState(false);
   const [metronomeOn, setMetronomeOn] = useState(false);
+  const [showChords, setShowChords] = useState(true);
+  const [showCues, setShowCues] = useState(true);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [atEnd, setAtEnd] = useState(false);
   const [activeSectionId, setActiveSectionId] = useState(null);
@@ -179,12 +181,12 @@ export default function Performance({ lineUp, currentIndex, onNextSong, onPrevSo
                     {line.words?.map(word => (
                       <div key={word.id} className="perf-word">
                         <div className="perf-word-top">
-                          {word.cue && (
+                          {showCues && word.cue && (
                             KNOWN_CUES.includes(word.cue)
                               ? <span className={`cue-dot cue-${word.cue}`} />
                               : <span className="cue-custom">{word.cue}</span>
                           )}
-                          {word.chord && <span className="chord">{transposeChord(word.chord, transpose)}</span>}
+                          {showChords && word.chord && <span className="chord">{transposeChord(word.chord, transpose)}</span>}
                         </div>
                         <div className="lyric">{word.text}</div>
                       </div>
@@ -229,6 +231,22 @@ export default function Performance({ lineUp, currentIndex, onNextSong, onPrevSo
           title="Metronome"
         >
           {metronomeOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
+        </button>
+
+        <button
+          className={`btn-icon ${showChords ? 'active' : ''}`}
+          onClick={() => setShowChords(v => !v)}
+          title={showChords ? 'Hide chords' : 'Show chords'}
+        >
+          <Guitar size={18} />
+        </button>
+
+        <button
+          className={`btn-icon ${showCues ? 'active' : ''}`}
+          onClick={() => setShowCues(v => !v)}
+          title={showCues ? 'Hide cues' : 'Show cues'}
+        >
+          <Drum size={18} />
         </button>
       </div>
 

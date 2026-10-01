@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Save, X, Plus, Trash2, Copy, GripVertical, Undo2, Redo2,
-  Scissors, CornerLeftUp, FileText, UnfoldVertical, ChevronUp, ChevronDown,
+  Scissors, CornerLeftUp, FileText, UnfoldVertical, ChevronUp, ChevronDown, PanelLeft,
 } from 'lucide-react';
 import { SECTION_TYPES, KEYS, KNOWN_CUES } from '../utils/constants';
 
@@ -34,6 +34,7 @@ export default function Editor({ song, onSave, onCancel }) {
   const [dragIndex, setDragIndex] = useState(null);
   const [customNameRequest, setCustomNameRequest] = useState(null); // { onConfirm }
   const [customNameInput, setCustomNameInput] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const addToHistory = (newState) => {
     const newHistory = history.slice(0, historyIndex + 1);
@@ -276,7 +277,12 @@ export default function Editor({ song, onSave, onCancel }) {
       </div>
 
       <div className="editor-container">
-        <div className="editor-sidebar">
+        {sidebarOpen && <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />}
+
+        <div className={`editor-sidebar ${sidebarOpen ? 'open' : ''}`}>
+          <button className="sidebar-close-btn btn-icon" onClick={() => setSidebarOpen(false)} title="Close">
+            <X size={18} />
+          </button>
           <div className="section-group">
             <h3>Song Info</h3>
             <label>
@@ -376,6 +382,10 @@ export default function Editor({ song, onSave, onCancel }) {
         </div>
 
         <div className="editor-main">
+          <button className="song-info-toggle-btn" onClick={() => setSidebarOpen(true)}>
+            <PanelLeft size={16} /> Song Info &amp; Structure
+          </button>
+
           {edited.sections.length === 0 ? (
             <div className="editor-empty">
               <p>Start by adding a section — paste your full lyrics into it, then split it up wherever a new part begins.</p>

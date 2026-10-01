@@ -510,6 +510,38 @@ button, input, select, textarea {
   gap: var(--sp-5);
 }
 
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 8, 16, 0.6);
+  z-index: 499;
+}
+
+.sidebar-close-btn {
+  display: none;
+}
+
+.song-info-toggle-btn {
+  display: none;
+  align-items: center;
+  gap: var(--sp-2);
+  align-self: flex-start;
+  padding: var(--sp-2) var(--sp-3);
+  margin-bottom: var(--sp-2);
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.song-info-toggle-btn:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
 .section-group {
   display: flex;
   flex-direction: column;
@@ -2452,7 +2484,30 @@ button, input, select, textarea {
   }
 
   .editor-sidebar {
-    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 85%;
+    max-width: 340px;
+    z-index: 500;
+    border-radius: 0;
+    border-right: 1px solid var(--border-strong);
+    box-shadow: 12px 0 32px rgba(0, 0, 0, 0.5);
+    transform: translateX(-105%);
+    transition: transform 0.25s var(--ease);
+  }
+
+  .editor-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-close-btn {
+    align-self: flex-end;
+  }
+
+  .song-info-toggle-btn {
+    display: flex;
   }
 
   .performance-controls {

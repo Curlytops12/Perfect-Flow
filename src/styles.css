@@ -2280,7 +2280,7 @@ button, input, select, textarea {
 .tuner-fab {
   position: fixed;
   top: calc(env(safe-area-inset-top, 0px) + var(--sp-3));
-  left: var(--sp-3);
+  right: calc(var(--sp-3) + 46px + var(--sp-2));
   width: 46px;
   height: 46px;
   border-radius: 50%;

@@ -1001,6 +1001,10 @@ button, input, select, textarea {
   margin-bottom: var(--sp-4);
 }
 
+.perf-line-gap {
+  margin-top: var(--sp-6);
+}
+
 .perf-words {
   display: flex;
   flex-wrap: wrap;
@@ -1742,10 +1746,49 @@ button, input, select, textarea {
   color: var(--cyan);
 }
 
+.line-gap-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.space-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  align-self: center;
+  padding: 3px var(--sp-2);
+  margin: 2px 0 var(--sp-2);
+  background: transparent;
+  border: none;
+  color: var(--text-faint);
+  font-size: 10px;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.15s var(--ease), color 0.15s var(--ease);
+}
+
+.space-btn:hover {
+  opacity: 1;
+  color: var(--purple);
+}
+
+.space-btn.active {
+  opacity: 1;
+  color: var(--purple);
+  font-weight: 600;
+}
+
 .line-editor {
   display: flex;
   align-items: flex-start;
   gap: var(--sp-2);
+}
+
+.line-editor-gap {
+  margin-top: var(--sp-5);
 }
 
 .line-editor .words-grid {

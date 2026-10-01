@@ -95,7 +95,7 @@ export default function SongView({ song, profile, onEdit, onBack }) {
             <div key={section.id} className="perf-section">
               <h2 className="perf-section-title">{section.name}</h2>
               {section.lines.map(line => (
-                <div key={line.id} className="perf-line">
+                <div key={line.id} className={`perf-line ${line.gapBefore ? 'perf-line-gap' : ''}`}>
                   <div className="perf-words">
                     {line.words?.map(word => (
                       <div key={word.id} className="perf-word">

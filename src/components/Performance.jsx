@@ -174,7 +174,7 @@ export default function Performance({ lineUp, currentIndex, onNextSong, onPrevSo
               <h2 className="perf-section-title">{section.name}</h2>
               {section.lines?.length === 0 && <p className="empty-state">No lyrics in this section.</p>}
               {section.lines?.map(line => (
-                <div key={line.id} className="perf-line">
+                <div key={line.id} className={`perf-line ${line.gapBefore ? 'perf-line-gap' : ''}`}>
                   <div className="perf-words">
                     {line.words?.map(word => (
                       <div key={word.id} className="perf-word">

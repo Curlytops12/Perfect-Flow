@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Save, X, Plus, Trash2, Copy, GripVertical, Undo2, Redo2,
-  Scissors, CornerLeftUp, FileText,
+  Scissors, CornerLeftUp, FileText, UnfoldVertical,
 } from 'lucide-react';
 import { SECTION_TYPES, KEYS, KNOWN_CUES } from '../utils/constants';
 
@@ -152,6 +152,16 @@ export default function Editor({ song, onSave, onCancel }) {
     }
     splitSectionAt(sectionId, lineIdx, type, null);
     setTypePicker(null);
+  };
+
+  const toggleLineGap = (sectionId, lineIdx) => {
+    const sections = edited.sections.map(s => {
+      if (s.id !== sectionId) return s;
+      const lines = [...s.lines];
+      lines[lineIdx] = { ...lines[lineIdx], gapBefore: !lines[lineIdx].gapBefore };
+      return { ...s, lines };
+    });
+    addToHistory({ ...edited, sections });
   };
 
   const updateLine = (sectionId, lineIdx, updates) => {
@@ -389,7 +399,7 @@ export default function Editor({ song, onSave, onCancel }) {
                   <>
                     {section.lines.map((line, lineIdx) => (
                       <React.Fragment key={line.id}>
-                        <div className="line-editor">
+                        <div className={`line-editor ${line.gapBefore ? 'line-editor-gap' : ''}`}>
                           <div className="words-grid">
                             {line.words.map(word => (
                               <button
@@ -411,12 +421,21 @@ export default function Editor({ song, onSave, onCancel }) {
                           </button>
                         </div>
                         {lineIdx < section.lines.length - 1 && (
-                          <button
-                            className="cut-btn"
-                            onClick={() => setTypePicker({ sectionId: section.id, lineIdx: lineIdx + 1 })}
-                          >
-                            <Scissors size={12} /> Split section here
-                          </button>
+                          <div className="line-gap-actions">
+                            <button
+                              className="cut-btn"
+                              onClick={() => setTypePicker({ sectionId: section.id, lineIdx: lineIdx + 1 })}
+                            >
+                              <Scissors size={12} /> Split section here
+                            </button>
+                            <button
+                              className={`space-btn ${section.lines[lineIdx + 1]?.gapBefore ? 'active' : ''}`}
+                              onClick={() => toggleLineGap(section.id, lineIdx + 1)}
+                            >
+                              <UnfoldVertical size={12} />
+                              {section.lines[lineIdx + 1]?.gapBefore ? 'Remove space' : 'Add space'}
+                            </button>
+                          </div>
                         )}
                       </React.Fragment>
                     ))}

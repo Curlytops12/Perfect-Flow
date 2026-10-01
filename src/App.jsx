@@ -10,6 +10,7 @@ import Performance from './components/Performance';
 import { SignIn, CreateProfile, ResetPassword, SupabaseNotConfigured } from './components/Auth';
 import Guest from './components/Guest';
 import DonationPrompt from './components/DonationPrompt';
+import Tuner from './components/Tuner';
 import { useAuth } from './hooks/useAuth';
 import { supabase, supabaseReady } from './utils/supabaseClient';
 import { Music, ListMusic, Headphones, Radio, User } from 'lucide-react';
@@ -449,6 +450,7 @@ export default function App() {
       </nav>
 
       <DonationPrompt />
+      <Tuner />
     </div>
   );
 }

@@ -1580,6 +1580,63 @@ button, input, select, textarea {
   color: var(--white);
 }
 
+.profile-avatar-btn {
+  position: relative;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  overflow: visible;
+}
+
+.profile-avatar-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.profile-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--r-md);
+}
+
+.profile-avatar-edit {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--surface-1);
+  border: 2px solid var(--navy);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bug-photo-preview {
+  position: relative;
+  display: inline-block;
+  margin: var(--sp-2) 0;
+}
+
+.bug-photo-preview img {
+  max-width: 100%;
+  max-height: 160px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  display: block;
+}
+
+.bug-photo-preview .btn-icon {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: var(--surface-1);
+  border: 1px solid var(--border-strong);
+}
+
 .profile-name {
   display: flex;
   align-items: center;

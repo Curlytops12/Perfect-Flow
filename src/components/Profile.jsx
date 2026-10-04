@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Music2, LogOut, Inbox, Check, X, Download, Upload, Trash2, Edit2, Bug } from 'lucide-react';
+import { Music2, LogOut, Inbox, Check, X, Download, Upload, Trash2, Edit2, Bug, Camera, ImagePlus } from 'lucide-react';
 import { supabase } from '../utils/supabaseClient';
 
 export default function Profile({ profile, songs, setlists, onSignOut, onCopySong, onUpdateProfile }) {
@@ -7,13 +7,18 @@ export default function Profile({ profile, songs, setlists, onSignOut, onCopySon
   const [loadingShares, setLoadingShares] = useState(true);
   const [message, setMessage] = useState('');
   const fileRef = React.useRef(null);
+  const avatarFileRef = React.useRef(null);
+  const bugPhotoRef = React.useRef(null);
 
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(profile.display_name || '');
   const [savingName, setSavingName] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const [showBugReport, setShowBugReport] = useState(false);
   const [bugText, setBugText] = useState('');
+  const [bugPhoto, setBugPhoto] = useState(null);
+  const [bugPhotoPreview, setBugPhotoPreview] = useState(null);
   const [submittingBug, setSubmittingBug] = useState(false);
 
   const flash = (msg) => {
@@ -96,16 +101,70 @@ export default function Profile({ profile, songs, setlists, onSignOut, onCopySon
     setEditingName(false);
   };
 
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { flash('Please choose an image file.'); return; }
+
+    setUploadingAvatar(true);
+    const path = `${profile.id}/avatar`;
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(path, file, { upsert: true, contentType: file.type });
+    if (uploadError) {
+      setUploadingAvatar(false);
+      flash('Could not upload photo: ' + uploadError.message);
+      return;
+    }
+    const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path);
+    const { error: updateError } = await onUpdateProfile({ avatar_url: `${publicUrl}?t=${Date.now()}` });
+    setUploadingAvatar(false);
+    if (updateError) { flash('Could not save photo: ' + updateError.message); return; }
+    flash('Profile photo updated.');
+  };
+
+  const handleBugPhotoChange = (e) => {
+    const file = e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { flash('Please choose an image file.'); return; }
+    setBugPhoto(file);
+    setBugPhotoPreview(URL.createObjectURL(file));
+  };
+
+  const removeBugPhoto = () => {
+    setBugPhoto(null);
+    setBugPhotoPreview(null);
+  };
+
   const handleSubmitBug = async () => {
     if (!bugText.trim()) return;
     setSubmittingBug(true);
+
+    let photoPath = null;
+    if (bugPhoto) {
+      const path = `${profile.id}/${Date.now()}-${bugPhoto.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from('bug-photos')
+        .upload(path, bugPhoto, { contentType: bugPhoto.type });
+      if (uploadError) {
+        setSubmittingBug(false);
+        flash('Could not attach photo: ' + uploadError.message);
+        return;
+      }
+      photoPath = path;
+    }
+
     const { error } = await supabase.from('bug_reports').insert({
       reporter_id: profile.id,
       description: bugText.trim(),
+      photo_path: photoPath,
     });
     setSubmittingBug(false);
     if (error) { flash('Could not submit: ' + error.message); return; }
     setBugText('');
+    removeBugPhoto();
     setShowBugReport(false);
     flash('Thanks — bug report sent.');
   };
@@ -126,9 +185,20 @@ export default function Profile({ profile, songs, setlists, onSignOut, onCopySon
       </div>
 
       <div className="profile-card">
-        <div className="profile-brand">
-          <Music2 size={28} />
-        </div>
+        <button
+          className="profile-brand profile-avatar-btn"
+          onClick={() => avatarFileRef.current?.click()}
+          disabled={uploadingAvatar}
+          title="Change profile photo"
+        >
+          {profile.avatar_url ? (
+            <img src={profile.avatar_url} alt="" className="profile-avatar-img" />
+          ) : (
+            <Music2 size={28} />
+          )}
+          <span className="profile-avatar-edit"><Camera size={13} /></span>
+        </button>
+        <input ref={avatarFileRef} type="file" accept="image/*" hidden onChange={handleAvatarChange} />
         <div style={{ flex: 1, minWidth: 0 }}>
           {editingName ? (
             <div className="profile-name-edit">
@@ -225,11 +295,26 @@ export default function Profile({ profile, songs, setlists, onSignOut, onCopySon
               rows="6" value={bugText} autoFocus placeholder="Describe the issue…"
               onChange={(e) => setBugText(e.target.value)}
             />
+
+            {bugPhotoPreview ? (
+              <div className="bug-photo-preview">
+                <img src={bugPhotoPreview} alt="Attached screenshot" />
+                <button className="btn-icon btn-danger" onClick={removeBugPhoto} title="Remove photo">
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            ) : (
+              <button className="btn-secondary btn-block" onClick={() => bugPhotoRef.current?.click()}>
+                <ImagePlus size={16} /> Attach a Photo
+              </button>
+            )}
+            <input ref={bugPhotoRef} type="file" accept="image/*" hidden onChange={handleBugPhotoChange} />
+
             <div className="modal-actions">
               <button className="btn-primary" onClick={handleSubmitBug} disabled={submittingBug || !bugText.trim()}>
                 {submittingBug ? 'Sending…' : 'Send Report'}
               </button>
-              <button className="btn-secondary" onClick={() => setShowBugReport(false)}>Cancel</button>
+              <button className="btn-secondary" onClick={() => { setShowBugReport(false); removeBugPhoto(); }}>Cancel</button>
             </div>
           </div>
         </div>
